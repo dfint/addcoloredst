@@ -19,24 +19,10 @@ use32
 
 ; extrn addst ; (edx:this, string * str_orig, byte justification, space:ecx)
 
-; macro display_hex num 
-; {
-    ; bits = 32
-    ; repeat bits/4
-    ; d = '0' + num shr (bits-%*4) and 0Fh
-    ; if d > '9'
-        ; d = d + 'A'-'9'-1
-    ; end if
-    ; display d
-    ; end repeat
-; }
-
 orig_base_addr = 401000h
 new_base_addr = 401000h
 
 delta = new_base_addr-orig_base_addr
-
-; display_hex (0E32288h+delta)
 
 label screenx dword at 0E32280h+delta
 label screeny dword at 0E32284h+delta
@@ -83,6 +69,18 @@ macro strlen str
     mov eax, ecx
 }
 
+macro memcpy_dwords src, dest, n
+{
+    push edi
+    push esi
+    mov edi, dest
+    mov esi, src
+    mov ecx, n
+    rep movsd
+    pop esi
+    pop edi
+}
+
 ; public addcoloredst
 org 7FDAA0h+delta
 
@@ -96,63 +94,42 @@ locals
 endl
     strlen ebx
     mov [slen], eax
-    mov eax, [screenx]
-    cmp eax, [init.display.grid_x]
-    jge .skip
-        xor esi, esi
-        .while esi < [slen]
-            .if signed [screenx]<0
-                push esi
-                add esi, [screenx]
-                mov [screenx], 0
-                cmp esi, [slen]
-                pop esi
-                jge .break
-            .endif
-            
-            ; changecolor((colorstr[s] & 7),((colorstr[s] & 56))>>3,((colorstr[s] & 64))>>6);
-            mov eax, [colorstr]
-            mov al, [eax+esi]
-            mov [colorstr_s], al
-            and al, 7
-            mov [screenf], al
-            mov al, [colorstr_s]
-            shr al, 3
-            push eax
-            and al, 7
-            mov [screenb], al
-            pop eax
-            shr al, 3
-            mov [screenbright], al
-            
-            ; string somebuf = str[s]
-            xor eax, eax
-            mov dword [somebuf.buf], eax
-            mov al, [ebx+esi]
-            mov [somebuf.buf], al
-            mov [somebuf.len], 1
-            mov [somebuf.capa], 15
-            
-            ; addst(someBuf);
-            xor ecx, ecx ; space = 0
-            .if esi=0
-                push justify_left
-            .else
-                push justify_cont
-            .endif
-            lea eax, [somebuf] ; str_orig = somebuf
-            push eax
-            mov edx, screenx ; this
-            call addst
-            
-            mov [slen], eax
-            mov eax, [screenx]
-            cmp eax, [init.display.grid_x]
-            jge .break
-            
-            inc esi
-        .endw
-        .break:
-    .skip:
+    
+    ; string somebuf = str
+    mov [somebuf.len], eax
+    .if eax<16
+        mov [somebuf.capa], 15
+        lea eax, [somebuf.buf]
+        memcpy_dwords ebx, eax, 4
+    .else
+        mov [somebuf.capa], eax
+        mov [somebuf.ptr], ebx
+    .endif
+    
+    ; changecolor((colorstr[0] & 7),((colorstr[0] & 56))>>3,((colorstr[0] & 64))>>6);
+    mov eax, [colorstr]
+    mov al, [eax]
+    mov [colorstr_s], al
+    and al, 7
+    mov [screenb], al
+    
+    mov al, [colorstr_s]
+    shr al, 3
+    push eax
+    and al, 7
+    mov [screenf], al
+    
+    pop eax
+    shr al, 3
+    mov [screenbright], al
+    
+    ; addst(someBuf);
+    xor ecx, ecx ; space = 0
+    push justify_left
+    lea eax, [somebuf] ; str_orig = somebuf
+    push eax
+    mov edx, screenx ; this
+    call addst
+    
     ret
 endp
