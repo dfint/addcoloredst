@@ -62,6 +62,10 @@ ends
 
 ; enum justification
 justify_left = 0
+justify_center = 1
+justify_right = 2
+justify_cont = 3
+not_truetype = 4
 
 ; section '.text' code
 
@@ -131,7 +135,11 @@ endl
             
             ; addst(someBuf);
             xor ecx, ecx ; space = 0
-            push justify_left ; just = justify_left
+            .if esi=0
+                push justify_left
+            .else
+                push justify_cont
+            .endif
             lea eax, [somebuf] ; str_orig = somebuf
             push eax
             mov edx, screenx ; this
