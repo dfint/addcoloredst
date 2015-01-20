@@ -5,18 +5,6 @@ include 'macro\if.inc'
 ; format MS COFF
 use32
 
-; class graphicst
-; extrn screenx:dword ; long screenx
-; extrn screeny:dword ; long screeny
-; extrn screenb:byte ; char screenb
-; extrn screenf:byte ; char screenf
-; extrn screenbright:byte ; char screenbright
-; extrn clipx:dword ; long clipx[2]
-; extrn clipy:dword ; long clipy[2]
-; extrn dimy:dword ; int dimy
-; ; init_displayst
-; extrn init.display.grid_x:dword
-
 ; extrn addst ; (edx:this, string * str_orig, byte justification, space:ecx)
 
 orig_base_addr = 401000h
@@ -24,15 +12,10 @@ new_base_addr = 401000h
 
 delta = new_base_addr-orig_base_addr
 
-label screenx dword at 0E32280h+delta
-label screeny dword at 0E32284h+delta
+label gps_start at 0E32280h+delta
 label screenb byte at 0E32288h+delta
 label screenf byte at 0E32289h+delta
 label screenbright byte at 0E3228Ah+delta
-label clipx dword at 0E322A4h+delta
-label clipy dword at 0E322ACh+delta
-label dimy dword at 0E325F0h+delta
-label init.display.grid_x dword at 1C0AC2Ch+delta
 
 addst = 7FDBD0h+delta
 
@@ -128,7 +111,7 @@ endl
     push justify_left
     lea eax, [somebuf] ; str_orig = somebuf
     push eax
-    mov edx, screenx ; this
+    mov edx, gps_start ; this
     call addst
     
     ret
