@@ -13,8 +13,8 @@ new_base_addr = 401000h
 delta = new_base_addr-orig_base_addr
 
 label gps_start at 0E32280h+delta
-label screenb byte at 0E32288h+delta
-label screenf byte at 0E32289h+delta
+label screenf byte at 0E32288h+delta
+label screenb byte at 0E32289h+delta
 label screenbright byte at 0E3228Ah+delta
 
 addst = 7FDBD0h+delta
@@ -94,13 +94,13 @@ endl
     mov al, [eax]
     mov [colorstr_s], al
     and al, 7
-    mov [screenb], al
+    mov [screenf], al
     
     mov al, [colorstr_s]
     shr al, 3
     push eax
     and al, 7
-    mov [screenf], al
+    mov [screenb], al
     
     pop eax
     shr al, 3
