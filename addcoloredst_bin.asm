@@ -12,12 +12,12 @@ new_base_addr = 401000h
 
 delta = new_base_addr-orig_base_addr
 
-label gps_start at 0E32280h+delta
-label screenf byte at 0E32288h+delta
-label screenb byte at 0E32289h+delta
-label screenbright byte at 0E3228Ah+delta
+label gps_start at 0E812F0h+delta
+label screenf byte at 0E812f8h+delta
+label screenb byte at 0E812f9h+delta
+label screenbright byte at 0E812fah+delta
 
-addst = 7FDBD0h+delta
+addst = 820020h+delta
 
 struct string
     union
@@ -65,7 +65,7 @@ macro memcpy_dwords src, dest, n
 }
 
 ; public addcoloredst
-org 7FDAA0h+delta
+org 81fde0h+delta
 
 a = addcoloredst
 
