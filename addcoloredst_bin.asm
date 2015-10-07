@@ -67,7 +67,7 @@ macro memcpy_dwords src, dest, n
 ; public addcoloredst
 org 81fde0h+delta
 
-a = addcoloredst
+a = addcoloredst ; Add explicit reference to the procedure to force compilier not to eliminate the code of the porcedure
 
 proc addcoloredst uses esi, colorstr:DWORD ; str:EBX
 locals
