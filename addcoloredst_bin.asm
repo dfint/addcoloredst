@@ -73,7 +73,7 @@ proc addcoloredst uses esi, colorstr:DWORD ; str:EBX
 locals
     slen dd ?
     somebuf string
-    colorstr_s db ?
+    colorstr_item db ?
 endl
     strlen ebx
     mov [slen], eax
@@ -92,11 +92,11 @@ endl
     ; changecolor((colorstr[0] & 7),((colorstr[0] & 56))>>3,((colorstr[0] & 64))>>6);
     mov eax, [colorstr]
     mov al, [eax]
-    mov [colorstr_s], al
+    mov [colorstr_item], al
     and al, 7
     mov [screenf], al
     
-    mov al, [colorstr_s]
+    mov al, [colorstr_item]
     shr al, 3
     push eax
     and al, 7
