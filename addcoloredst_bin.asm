@@ -111,27 +111,22 @@ macro changecolor this, colorbyte
 
 addst = 8C6C50h+delta
 
-; public addcoloredst1
+; public addcoloredst
 org 8C66E0h+delta
 
 a = addcoloredst ; Add explicit reference to the procedure to force compilier not to eliminate the code of the porcedure
 
 proc addcoloredst uses ebx esi edi, str:DWORD, colorstr:DWORD ; this:EAX
 locals
-    ; slen dd ?
     strbuf string
     colorstr_item db ?
 endl
     mov edi, eax ; this
-    ; virtual at edi
-        ; gps graphicst
-    ; end virtual
     
     mov ebx, [str]
     strlen ebx
-    ; mov [slen], eax
     
-    ; string strbuf = str
+    ; string strbuf = str;
     mov [strbuf.len], eax
     .if eax<16
         mov [strbuf.capa], 15
