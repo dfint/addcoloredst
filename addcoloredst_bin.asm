@@ -147,11 +147,9 @@ endl
     
     ; addst(this<edx>, strbuf, just=justify_left, space<ecx>=0);
     xor ecx, ecx ; space = 0
-    push justify_left
-    lea eax, [strbuf] ; str_orig = strbuf
-    push eax
     mov edx, edi ; this
-    call addst
+    lea eax, [strbuf] ; str_orig = strbuf
+    stdcall addst, eax, justify_left
     
     ret
 endp
