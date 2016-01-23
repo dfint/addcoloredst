@@ -75,6 +75,26 @@ macro strlen str
     mov eax, ecx
 }
 
+macro init_string this*, c_str*, len
+{
+    if len eq
+        strlen c_str
+    else
+        mov eax, len
+    end if
+    
+    mov ecx, c_str
+    mov [strbuf.len], eax
+    .if eax<16
+        mov [strbuf.capa], 15
+        lea eax, [strbuf.buf]
+        memcpy_dwords ebx, eax, 4
+    .else
+        mov [strbuf.capa], eax
+        mov [strbuf.ptr], ebx
+    .endif
+}
+
 macro memcpy_dwords src, dest, n
 {
     push edi
@@ -123,19 +143,7 @@ locals
 endl
     mov edi, eax ; this
     
-    mov ebx, [str]
-    strlen ebx
-    
-    ; string strbuf = str;
-    mov [strbuf.len], eax
-    .if eax<16
-        mov [strbuf.capa], 15
-        lea eax, [strbuf.buf]
-        memcpy_dwords ebx, eax, 4
-    .else
-        mov [strbuf.capa], eax
-        mov [strbuf.ptr], ebx
-    .endif
+    init_string strbuf, [str]
     
     ; changecolor(colorstr[0] & 7, (colorstr[0] >> 3) & 7, colorstr[0] >> 6);
     mov eax, [colorstr]
