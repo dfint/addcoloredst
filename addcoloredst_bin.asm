@@ -109,24 +109,20 @@ macro memcpy_dwords src, dest, n
 
 macro changecolor this, colorbyte
 {
-    virtual at this
-        gps graphicst
-    end virtual
-    
     mov al, colorbyte
     push eax
     and al, 7
-    mov [gps.screenf], al
+    mov [this+graphicst.screenf], al
     
     pop eax
     shr al, 3
     push eax
     and al, 7
-    mov [gps.screenb], al
+    mov [this+graphicst.screenb], al
     
     pop eax
     shr al, 3
-    mov [gps.screenbright], al
+    mov [this+graphicst.screenbright], al
 }
 
 addst = 8C6C50h+delta
