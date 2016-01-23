@@ -88,10 +88,10 @@ macro init_string this*, c_str*, len
     .if eax<16
         mov [strbuf.capa], 15
         lea eax, [strbuf.buf]
-        memcpy_dwords ebx, eax, 4
+        memcpy_dwords ecx, eax, 4
     .else
         mov [strbuf.capa], eax
-        mov [strbuf.ptr], ebx
+        mov [strbuf.ptr], ecx
     .endif
 }
 
