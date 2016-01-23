@@ -87,6 +87,28 @@ macro memcpy_dwords src, dest, n
     pop edi
 }
 
+macro changecolor this, colorbyte
+{
+    virtual at this
+        gps graphicst
+    end virtual
+    
+    mov al, colorbyte
+    push eax
+    and al, 7
+    mov [gps.screenf], al
+    
+    pop eax
+    shr al, 3
+    push eax
+    and al, 7
+    mov [gps.screenb], al
+    
+    pop eax
+    shr al, 3
+    mov [gps.screenbright], al
+}
+
 addst = 8C6C50h+delta
 
 ; public addcoloredst1
@@ -101,9 +123,9 @@ locals
     colorstr_item db ?
 endl
     mov edi, eax ; this
-    virtual at edi
-        gps graphicst
-    end virtual
+    ; virtual at edi
+        ; gps graphicst
+    ; end virtual
     
     mov ebx, [str]
     strlen ebx
@@ -122,20 +144,7 @@ endl
     
     ; changecolor(colorstr[0] & 7, (colorstr[0] >> 3) & 7, colorstr[0] >> 6);
     mov eax, [colorstr]
-    mov al, [eax]
-    mov [colorstr_item], al
-    and al, 7
-    mov [gps.screenf], al
-    
-    mov al, [colorstr_item]
-    shr al, 3
-    push eax
-    and al, 7
-    mov [gps.screenb], al
-    
-    pop eax
-    shr al, 3
-    mov [gps.screenbright], al
+    changecolor edi, [eax]
     
     ; addst(this<edx>, strbuf, just=justify_left, space<ecx>=0);
     xor ecx, ecx ; space = 0
