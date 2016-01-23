@@ -139,7 +139,6 @@ a = addcoloredst ; Add explicit reference to the procedure to force compilier no
 proc addcoloredst uses ebx esi edi, str:DWORD, colorstr:DWORD ; this:EAX
 locals
     strbuf string
-    colorstr_item db ?
 endl
     mov edi, eax ; this
     
