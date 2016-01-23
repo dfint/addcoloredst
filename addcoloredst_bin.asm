@@ -1,3 +1,4 @@
+; include 'win32ax.inc'
 include 'macro\proc32.inc'
 include 'macro\struct.inc'
 include 'macro\if.inc'
@@ -132,7 +133,7 @@ org 8C66E0h+delta
 
 a = addcoloredst ; Add explicit reference to the procedure to force compilier not to eliminate the code of the porcedure
 
-proc addcoloredst uses ebx esi edi, str:DWORD, colorstr:DWORD ; this:EAX
+proc addcoloredst uses esi edi, str:DWORD, colorstr:DWORD ; this:EAX
 locals
     strbuf string
 endl
