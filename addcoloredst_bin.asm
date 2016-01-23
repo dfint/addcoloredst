@@ -5,19 +5,42 @@ include 'macro\if.inc'
 ; format MS COFF
 use32
 
-; extrn addst ; (edx:this, string * str_orig, byte justification, space:ecx)
-
 orig_base_addr = 401000h
 new_base_addr = 401000h
 
 delta = new_base_addr-orig_base_addr
 
-label gps_start at 0E812F0h+delta
-label screenf byte at 0E812f8h+delta
-label screenb byte at 0E812f9h+delta
-label screenbright byte at 0E812fah+delta
-
-addst = 820020h+delta
+struct graphicst        ; (sizeof=0x380)
+    screenx         dd ?
+    screeny         dd ?
+    screenf         db ?
+    screenb         db ?
+    screenbright    db ?
+    padding_byte    db ?
+    screen          dd ?                    ; offset
+    screentexpos    dd ?                    ; offset
+    screentexpos_addcolor dd ?              ; offset
+    screentexpos_grayscale dd ?
+    screentexpos_cf dd ?
+    screentexpos_cbr dd ?
+    clipx           dd 2 dup(?)
+    clipy           dd 2 dup(?)
+    tex_pos         dd ?
+    rect_id         dd ?
+    print_time      dq 100 dup(?)
+    print_index     dd ?
+    display_frames  db ?
+    field_361       db ?
+    force_full_display_count dw ?
+    original_rect   db ?
+    field_365       db 3 dup(?)
+    field_368       dd ?
+    dimx            dd ?
+    dimy            dd ?
+    mouse_x         dd ?
+    mouse_y         dd ?                    ; offset
+    screen_limit    dd ?                    ; offset
+ends
 
 struct string
     union
@@ -64,54 +87,62 @@ macro memcpy_dwords src, dest, n
     pop edi
 }
 
-; public addcoloredst
-org 81fde0h+delta
+addst = 8C6C50h+delta
+
+; public addcoloredst1
+org 8C66E0h+delta
 
 a = addcoloredst ; Add explicit reference to the procedure to force compilier not to eliminate the code of the porcedure
 
-proc addcoloredst uses esi, colorstr:DWORD ; str:EBX
+proc addcoloredst uses ebx esi edi, str:DWORD, colorstr:DWORD ; this:EAX
 locals
-    slen dd ?
-    somebuf string
+    ; slen dd ?
+    strbuf string
     colorstr_item db ?
 endl
-    strlen ebx
-    mov [slen], eax
+    mov edi, eax ; this
+    virtual at edi
+        gps graphicst
+    end virtual
     
-    ; string somebuf = str
-    mov [somebuf.len], eax
+    mov ebx, [str]
+    strlen ebx
+    ; mov [slen], eax
+    
+    ; string strbuf = str
+    mov [strbuf.len], eax
     .if eax<16
-        mov [somebuf.capa], 15
-        lea eax, [somebuf.buf]
+        mov [strbuf.capa], 15
+        lea eax, [strbuf.buf]
         memcpy_dwords ebx, eax, 4
     .else
-        mov [somebuf.capa], eax
-        mov [somebuf.ptr], ebx
+        mov [strbuf.capa], eax
+        mov [strbuf.ptr], ebx
     .endif
     
-    ; changecolor((colorstr[0] & 7),((colorstr[0] & 56))>>3,((colorstr[0] & 64))>>6);
+    ; changecolor(colorstr[0] & 7, (colorstr[0] >> 3) & 7, colorstr[0] >> 6);
     mov eax, [colorstr]
     mov al, [eax]
     mov [colorstr_item], al
     and al, 7
-    mov [screenf], al
+    mov [gps.screenf], al
     
     mov al, [colorstr_item]
     shr al, 3
     push eax
     and al, 7
-    mov [screenb], al
+    mov [gps.screenb], al
     
     pop eax
     shr al, 3
-    mov [screenbright], al
+    mov [gps.screenbright], al
     
-    ; addst(someBuf);
+    ; addst(this<edx>, strbuf, just=justify_left, space<ecx>=0);
     xor ecx, ecx ; space = 0
     push justify_left
-    lea eax, [somebuf] ; str_orig = somebuf
+    lea eax, [strbuf] ; str_orig = strbuf
     push eax
-    mov edx, gps_start ; this
+    mov edx, edi ; this
     call addst
     
     ret
