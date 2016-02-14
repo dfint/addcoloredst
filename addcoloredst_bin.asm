@@ -126,10 +126,10 @@ macro changecolor this, colorbyte
     mov [this+graphicst.screenbright], al
 }
 
-addst = 8C6C50h+delta
+addst = 8D9D60h+delta
 
 ; public addcoloredst
-org 8C66E0h+delta
+org 8D97F0h+delta
 
 a = addcoloredst ; Add explicit reference to the procedure to force compilier not to eliminate the code of the porcedure
 
